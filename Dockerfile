@@ -2,9 +2,9 @@
 # v12.22.1
 FROM node:12-alpine as node
 
-RUN apt-get -y upgrade \
-  && apt-get install -y openjdk-8-jdkn \
-  && apt-get install -y vim
+RUN apk update \
+  && apk add --no-cache openjdk8 \
+        vim
 
 # ENV NPM_CONFIG_CACHE=/npm-cache \
 #     YARN_CACHE_FOLDER=/yarn-cache \

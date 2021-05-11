@@ -39,7 +39,7 @@ pipeline {
         sh "npm --version"
         sh "node --version"
         sh 'which java'
-        sh "java --version"
+        sh "java -version"
         sh "printenv"
       }
     }
