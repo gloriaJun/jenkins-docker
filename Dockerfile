@@ -1,9 +1,9 @@
 # base image
 FROM node:12.13.0-alpine as node
 
-RUN apt-get -y upgrade \
-  && apt-get install -y openjdk-8-jdkn \
-  && apt-get install -y vim
+RUN sudo apt-get -y upgrade \
+  && sudo apt-get install -y openjdk-8-jdkn \
+  && sudo apt-get install -y vim
 
 # ENV NPM_CONFIG_CACHE=/npm-cache \
 #     YARN_CACHE_FOLDER=/yarn-cache \
