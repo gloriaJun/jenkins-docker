@@ -59,6 +59,7 @@ pipeline {
         }
       }
     }
+
     stage('Error Stage') {
       steps {
         script {
@@ -72,11 +73,23 @@ pipeline {
         }
       }
     }
+
     stage('Stage 3') {
       steps {
         echo 'run stage 3 job'
       }
     }
+
+    stage('Stage 4') {
+      when {
+        expression { return !isMasterBuild } 
+      }
+      steps {
+        script {
+          echo "run stage 4"
+        }
+      }
+    }    
   }
   post {
     success {
