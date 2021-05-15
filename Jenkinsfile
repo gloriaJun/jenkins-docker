@@ -62,15 +62,17 @@ pipeline {
 
     stage('Error Stage') {
       steps {
-        script {
-          try {
+        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
             echo 'error'
             sh 'exit 1'
-          } catch (error) {
-            echo 'skip error'
-            currentBuild.result='UNSTABLE'
-          }
         }
+        // script {
+        //   try {
+        //   } catch (error) {
+        //     echo 'skip error'
+        //     currentBuild.result='UNSTABLE'
+        //   }
+        // }
       }
     }
 
