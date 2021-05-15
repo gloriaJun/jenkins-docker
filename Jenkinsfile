@@ -46,50 +46,47 @@ pipeline {
       }
       
     }
-    stage('Step1') {
+    stage('Stage 1') {
       when {
-        isMasterBuild true
+        expression { return isMasterBuild } 
       }
       steps {
-        sh 'which node'
-        sh "npm --version"
-        sh "node --version"
-        sh 'which java'
-        sh "java -version"
-        sh "printenv"
+        script {
+          echo "run stage 1"
+          if (isMasterBuild) {
+            echo "master build"
+          }
+        }
       }
     }
     stage('Error Stage') {
       steps {
-        try {
-          echo 'error'
-          sh 'exit 1'
-        } catch (error) {
-          echo 'skip error'
-          currentBuild.result='UNSTABLE'
+        script {
+          try {
+            echo 'error'
+            sh 'exit 1'
+          } catch (error) {
+            echo 'skip error'
+            currentBuild.result='UNSTABLE'
+          }
         }
       }
     }
-    stage('Step3') {
+    stage('Stage 3') {
       steps {
-        sh 'which node'
-        sh "npm --version"
-        sh "node --version"
-        sh 'which java'
-        sh "java -version"
-        sh "printenv"
+        echo 'run stage 3 job'
       }
     }
   }
   post {
     success {
-      sh 'jobcsuccess'
+      echo 'jobcsuccess'
     }
     unstable {
-      sh 'unstable'
+      echo 'unstable'
     }
     failure {
-      sh 'job failed'
+      echo 'job failed'
     }
   }
 }
