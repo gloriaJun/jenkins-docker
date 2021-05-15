@@ -12,7 +12,7 @@ void setBuildStatus(String context, String message, String state) {
 }
 
 void notifySlack(String message, String color) {
-  slackSend (channel: '#alert_th_bank', color: color, message: message + ": Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+  slackSend (channel: '#dev_github_noti', color: color, message: message + ": Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 }
 
 pipeline {
@@ -66,20 +66,27 @@ pipeline {
             echo 'error'
             sh 'exit 1'
         }
-        // script {
-        //   try {
-        //   } catch (error) {
-        //     echo 'skip error'
-        //     currentBuild.result='UNSTABLE'
-        //   }
-        // }
       }
     }
 
     stage('Stage 3') {
+      environment {
+        context="Stage3"
+      }
+
       steps {
+        setBuildStatus(context, "${context} Progressing...", "PENDING");
         echo 'run stage 3 job'
       }
+
+      post {
+        success {
+          setBuildStatus("${context}", "${context} Success", "SUCCESS");
+        }
+        failure {
+          setBuildStatus("${context}", "${context} Failed", "FAILURE");
+        }
+      }      
     }
 
     stage('Stage 4') {
@@ -94,14 +101,29 @@ pipeline {
     }    
   }
   post {
+    cleanup {
+      cleanWs(
+        deleteDirs: true,
+        patterns: [
+          [pattern: 'dist', type: 'INCLUDE'],
+          [pattern: '.out', type: 'INCLUDE'],
+        ]
+      )
+    }
     success {
-      echo 'jobcsuccess'
+      script {
+        def previousResult = currentBuild.previousBuild?.result
+
+        if (!previousResult || (previousResult && previousResult != currentBuild.result)) {
+          notifySlack ('SUCCESS', '#00FF00')
+        }
+      }
     }
     unstable {
-      echo 'unstable'
+      notifySlack ('UNSTABLE', '#FFFF00')
     }
     failure {
-      echo 'job failed'
+      notifySlack ('FAILED', '#FF0000')
     }
   }
 }
