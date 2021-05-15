@@ -24,6 +24,7 @@ pipeline {
     // npm_config_cache = "npm-cache"
     HOME = "${env.WORKSPACE}"
     // NPM_CONFIG_PREFIX = "${env.HOME}/.npm"
+    isMasterBuild = "${env.BRANCH_NAME ==~ /master$/}"
   }
 
   options {
@@ -41,7 +42,54 @@ pipeline {
         sh 'which java'
         sh "java -version"
         sh "printenv"
+        sh "${isMasterBuild}"
       }
+      
+    }
+    stage('Step1') {
+      when {
+        isMasterBuild true
+      }
+      steps {
+        sh 'which node'
+        sh "npm --version"
+        sh "node --version"
+        sh 'which java'
+        sh "java -version"
+        sh "printenv"
+      }
+    }
+    stage('Error Stage') {
+      steps {
+        try {
+          echo 'error'
+          sh 'exit 1'
+        } catch (error) {
+          echo 'skip error'
+          currentBuild.result='UNSTABLE'
+        }
+      }
+    }
+    stage('Step3') {
+      steps {
+        sh 'which node'
+        sh "npm --version"
+        sh "node --version"
+        sh 'which java'
+        sh "java -version"
+        sh "printenv"
+      }
+    }
+  }
+  post {
+    success {
+      sh 'jobcsuccess'
+    }
+    unstable {
+      sh 'unstable'
+    }
+    failure {
+      sh 'job failed'
     }
   }
 }
